@@ -1,0 +1,69 @@
+---
+nameOverride: ""
+fullnameOverride: ""
+
+elastic:
+  enabled: true
+  version: 7.10.0
+  nodeSet:
+    name: telemetry
+    count: 3
+    javaheap: "-Xms2g -Xmx2g"
+    resources:
+      requests:
+        memory: 512Mi
+        cpu: 0.5
+      limits:
+        memory: 2Gi
+        cpu: 2
+    volumeClaim:
+      accessModes:
+        - ReadWriteOnce
+      resources:
+        requests:
+          storage: 10Gi
+      storageClassName: longhorn
+    config:
+      node.store.allow_mmap: false
+  ingress:
+    enabled: false
+    annotations: {}
+      # kubernetes.io/ingress.class: nginx
+      # kubernetes.io/tls-acme: "true"
+    hosts:
+      - host: elastic.example.com
+    tls: []
+    #  - secretName: chart-example-tls
+    #    hosts:
+    #      - chart-example.local
+
+kibana:
+  enabled: true
+  version: 7.10.0
+  count: 1
+  elasticRef: telemetry
+  resources:
+    requests:
+      memory: 512Mi
+      cpu: 0.5
+    limits:
+      memory: 2Gi
+      cpu: 2
+# config:
+#   elasticsearch.requestHeadersWhitelist:
+#     - authorization
+# http:
+#  service:
+#    spec:
+#      type: LoadBalancer # default is ClusterIP
+  ingress:
+    enabled: true
+    annotations: {}
+      # kubernetes.io/ingress.class: nginx
+      # kubernetes.io/tls-acme: "true"
+    hosts:
+      - host: kibana.example.com
+    tls: []
+    #  - secretName: chart-example-tls
+    #    hosts:
+    #      - chart-example.local

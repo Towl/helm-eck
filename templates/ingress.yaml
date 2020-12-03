@@ -1,0 +1,78 @@
+{{- if .Values.elastic.ingress.enabled -}}
+---
+{{- $fullName := include "eck.fullname" . -}}
+{{- if semverCompare ">=1.14-0" .Capabilities.KubeVersion.GitVersion -}}
+apiVersion: networking.k8s.io/v1beta1
+{{- else -}}
+apiVersion: extensions/v1beta1
+{{- end }}
+kind: Ingress
+metadata:
+  name: {{ $fullName }}-es
+  labels:
+    {{- include "eck.labels" . | nindent 4 }}
+  {{- with .Values.elastic.ingress.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  {{- if .Values.elastic.ingress.tls }}
+  tls:
+    {{- range .Values.elastic.ingress.tls }}
+    - hosts:
+        {{- range .hosts }}
+        - {{ . | quote }}
+        {{- end }}
+      secretName: {{ .secretName }}
+    {{- end }}
+  {{- end }}
+  rules:
+    {{- range .Values.elastic.ingress.hosts }}
+    - host: {{ .host | quote }}
+      http:
+        paths:
+          - path: /
+            backend:
+              serviceName: {{ $fullName }}-es-http
+              servicePort: 9200
+    {{- end }}
+{{- end }}
+{{- if .Values.kibana.ingress.enabled -}}
+---
+{{- $fullName := include "eck.fullname" . -}}
+{{- if semverCompare ">=1.14-0" .Capabilities.KubeVersion.GitVersion -}}
+apiVersion: networking.k8s.io/v1beta1
+{{- else -}}
+apiVersion: extensions/v1beta1
+{{- end }}
+kind: Ingress
+metadata:
+  name: {{ $fullName }}-kb
+  labels:
+    {{- include "eck.labels" . | nindent 4 }}
+  {{- with .Values.kibana.ingress.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  {{- if .Values.kibana.ingress.tls }}
+  tls:
+    {{- range .Values.kibana.ingress.tls }}
+    - hosts:
+        {{- range .hosts }}
+        - {{ . | quote }}
+        {{- end }}
+      secretName: {{ .secretName }}
+    {{- end }}
+  {{- end }}
+  rules:
+    {{- range .Values.kibana.ingress.hosts }}
+    - host: {{ .host | quote }}
+      http:
+        paths:
+          - path: /
+            backend:
+              serviceName: {{ $fullName }}-kb-http
+              servicePort: 5601
+    {{- end }}
+{{- end }}

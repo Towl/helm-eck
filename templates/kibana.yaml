@@ -1,0 +1,29 @@
+{{- if .Values.kibana.enabled -}}
+apiVersion: kibana.k8s.elastic.co/v1
+kind: Kibana
+metadata:
+  name: {{ include "eck.fullname" . }}
+  labels:
+    {{- include "eck.labels" . | nindent 4 }}
+spec:
+  version: {{ .Values.kibana.version }}
+  count: {{ .Values.kibana.count }}
+  elasticsearchRef:
+    name: {{ .Values.kibana.elasticRef }}
+  {{- with .Values.kibana.config }}
+  config:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  {{- with .Values.kibana.http }}
+  http:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  podTemplate:
+    spec:
+      containers:
+        - name: kibana
+          {{- with .Values.kibana.resources }}
+          resources:
+            {{- toYaml . | nindent 16 }}
+          {{- end }}
+{{- end }}
