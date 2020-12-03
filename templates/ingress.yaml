@@ -1,7 +1,7 @@
 {{- if .Values.elastic.ingress.enabled -}}
 ---
 {{- $fullName := include "eck.fullname" . -}}
-apiVersion: extensions/v1beta1
+apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: {{ $fullName }}-es
@@ -27,20 +27,19 @@ spec:
     - host: {{ .host | quote }}
       http:
         paths:
-          - path: /
+          - pathType: Prefix
+            path: /
             backend:
-              serviceName: {{ $fullName }}-es-http
-              servicePort: 9200
+              service:
+                name: {{ $fullName }}-es-http
+                port:
+                  number: 9200
     {{- end }}
 {{- end }}
 {{- if .Values.kibana.ingress.enabled -}}
 ---
 {{- $fullName := include "eck.fullname" . -}}
-{{- if semverCompare ">=1.14-0" .Capabilities.KubeVersion.GitVersion -}}
-apiVersion: networking.k8s.io/v1beta1
-{{- else -}}
-apiVersion: extensions/v1beta1
-{{- end }}
+apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: {{ $fullName }}-kb
@@ -66,9 +65,12 @@ spec:
     - host: {{ .host | quote }}
       http:
         paths:
-          - path: /
+          - pathType: Prefix
+            path: /
             backend:
-              serviceName: {{ $fullName }}-kb-http
-              servicePort: 5601
+              service:
+                name: {{ $fullName }}-kb-http
+                port:
+                  number: 5601
     {{- end }}
 {{- end }}
