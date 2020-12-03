@@ -8,10 +8,10 @@ elastic:
   nodeSet:
     name: telemetry
     count: 3
-    javaheap: "-Xms2g -Xmx2g"
+    javaheap: "-Xms1g -Xmx1g"
     resources:
       requests:
-        memory: 512Mi
+        memory: 2Gi
         cpu: 0.5
       limits:
         memory: 2Gi
@@ -27,9 +27,12 @@ elastic:
       node.store.allow_mmap: false
   ingress:
     enabled: false
-    annotations: {}
-      # kubernetes.io/ingress.class: nginx
-      # kubernetes.io/tls-acme: "true"
+    annotations:
+      kubernetes.io/ingress.class: nginx
+      nginx.ingress.kubernetes.io/proxy-body-size: "0"
+      nginx.ingress.kubernetes.io/rewrite-target: /
+      nginx.ingress.kubernetes.io/ssl-redirect: "true"
+      nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
     hosts:
       - host: elastic.example.com
     tls: []
@@ -57,9 +60,12 @@ kibana:
 #      type: LoadBalancer # default is ClusterIP
   ingress:
     enabled: true
-    annotations: {}
-      # kubernetes.io/ingress.class: nginx
-      # kubernetes.io/tls-acme: "true"
+    annotations:
+      kubernetes.io/ingress.class: nginx
+      nginx.ingress.kubernetes.io/proxy-body-size: "0"
+      nginx.ingress.kubernetes.io/rewrite-target: /
+      nginx.ingress.kubernetes.io/ssl-redirect: "true"
+      nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
     hosts:
       - host: kibana.example.com
     tls: []
