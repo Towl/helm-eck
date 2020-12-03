@@ -41,7 +41,6 @@ kibana:
   enabled: true
   version: 7.10.0
   count: 1
-  elasticRef: telemetry
   resources:
     requests:
       memory: 512Mi
