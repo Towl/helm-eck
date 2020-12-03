@@ -8,8 +8,24 @@ metadata:
     "helm.sh/hook": test
 spec:
   containers:
-    - name: wget
-      image: busybox
-      command: ['wget']
-      args: ['{{ include "eck.fullname" . }}-es-http:9200']
+    - name: curl
+      image: curlimages/curl
+      args: ['-q', '--cacert', '/tmp/certs/tls.crt', '-u', "elastic:$(ELASTIC_PASS)", 'https://{{ include "eck.fullname" . }}-es-http:9200/']
+      env:
+        - name: ELASTIC_PASS
+          valueFrom:
+            secretKeyRef:
+              name: {{ include "eck.fullname" . }}-es-elastic-user
+              key: elastic
+      volumeMounts:
+        - name: cert
+          mountPath: "/tmp/certs"
+          readOnly: true
   restartPolicy: Never
+  volumes:
+    - name: cert
+      secret:
+        secretName: {{ include "eck.fullname" . }}-es-http-certs-public
+        items:
+        - key: tls.crt
+          path: tls.crt
