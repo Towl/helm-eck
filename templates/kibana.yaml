@@ -9,7 +9,7 @@ spec:
   version: {{ .Values.kibana.version }}
   count: {{ .Values.kibana.count }}
   elasticsearchRef:
-    name: {{ .Values.kibana.elasticRef }}
+    name: {{ include "eck.fullname" . }}
   {{- with .Values.kibana.config }}
   config:
     {{- toYaml . | nindent 4 }}
