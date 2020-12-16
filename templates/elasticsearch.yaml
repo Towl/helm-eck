@@ -12,6 +12,7 @@ spec:
       count: {{ .Values.elastic.nodeSet.count }}
       {{- with .Values.elastic.nodeSet.config }}
       config:
+        node.store.allow_mmap: false
         {{- toYaml . | nindent 8 }}
       {{- end }}
       {{- with .Values.elastic.nodeSet.volumeClaim }}
@@ -32,4 +33,20 @@ spec:
               resources:
                 {{- toYaml . | nindent 16 }}
               {{- end }}
+          {{- if .Values.elastic.nodeSet.enableAntiAffinity }}
+          affinity:
+            podAntiAffinity:
+              requiredDuringSchedulingIgnoredDuringExecution:
+              - labelSelector:
+                  matchLabels:
+                    elasticsearch.k8s.elastic.co/statefulset-name: {{ include "eck.fullname" . }}
+                topologyKey: kubernetes.io/hostname
+          {{- end }}
+    {{- if .Values.elastic.nodeSet.needsQuorum }}
+    - name: {{ .Values.elastic.nodeSet.name }}-quorum
+      count: 1
+      config:
+        node.roles: ["master"]
+        node.store.allow_mmap: false
+    {{- end }}
 {{- end }}
