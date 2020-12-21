@@ -9,7 +9,6 @@ elastic:
     name: telemetry
     count: 3
     javaheap: "-Xms1g -Xmx1g"
-    needsQuorum: true #Should be true if count < 3
     enableAntiAffinity: true #To add antiAffinity one elastic node pods
     resources:
       requests:
@@ -26,6 +25,17 @@ elastic:
           storage: 10Gi
       storageClassName: longhorn
     config:
+    quorum:
+      enabled: true #Should be true if node count < 3
+      javaheap: "-Xms1g -Xmx1g"
+      resources:
+        requests:
+          memory: 1Gi
+          cpu: 0.25
+        limits:
+          memory: 2Gi
+          cpu: 0.5
+
   ingress:
     enabled: false
     annotations:
